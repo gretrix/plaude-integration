@@ -266,9 +266,46 @@ def handle_plaud_webhook():
         logger.error(f"Error processing webhook: {e}")
         return jsonify({'error': f'Internal server error: {str(e)}'}), 500
 
-@app.route('/api/diet', methods=['POST'])
+@app.route('/diet')
+def diet_page():
+    """Diet tracking page"""
+    from flask import render_template, request
+    date_filter = request.args.get('date')
+    diet_records = get_diet_records(date_filter=date_filter, limit=50)
+    return render_template('diet.html', records=diet_records, date_filter=date_filter)
+
+@app.route('/tasks')
+def tasks_page():
+    """Tasks management page"""
+    from flask import render_template, request
+    status_filter = request.args.get('status')
+    tasks = get_tasks_records(status_filter=status_filter, limit=50)
+    return render_template('tasks.html', tasks=tasks, status_filter=status_filter)
+
+@app.route('/crm')
+def crm_page():
+    """CRM contacts page"""
+    from flask import render_template, request
+    search_query = request.args.get('search')
+    contacts = get_crm_records(search_query=search_query, limit=50)
+    return render_template('crm.html', contacts=contacts, search_query=search_query)
+
+@app.route('/api/diet', methods=['GET', 'POST'])
 def handle_diet_webhook():
     """Specific endpoint for diet data from AI by Zapier"""
+    # Handle GET requests for retrieving data
+    if request.method == 'GET':
+        date_filter = request.args.get('date')
+        limit = int(request.args.get('limit', 100))
+        offset = int(request.args.get('offset', 0))
+        records = get_diet_records(date_filter=date_filter, limit=limit, offset=offset)
+        return jsonify({
+            'status': 'success',
+            'count': len(records),
+            'data': records
+        }), 200
+    
+    # Handle POST requests for inserting data
     try:
         data = request.get_json()
         
@@ -431,9 +468,22 @@ def insert_crm_data(crm_records: List[Dict[str, Any]]) -> bool:
             cursor.close()
             connection.close()
 
-@app.route('/api/tasks', methods=['POST'])
+@app.route('/api/tasks', methods=['GET', 'POST'])
 def handle_tasks_webhook():
     """Endpoint for tasks data from AI by Zapier"""
+    # Handle GET requests for retrieving data
+    if request.method == 'GET':
+        status_filter = request.args.get('status')
+        limit = int(request.args.get('limit', 100))
+        offset = int(request.args.get('offset', 0))
+        records = get_tasks_records(status_filter=status_filter, limit=limit, offset=offset)
+        return jsonify({
+            'status': 'success',
+            'count': len(records),
+            'data': records
+        }), 200
+    
+    # Handle POST requests for inserting data
     try:
         data = request.get_json()
         
@@ -473,9 +523,22 @@ def handle_tasks_webhook():
         logger.error(f"Error processing tasks webhook: {e}")
         return jsonify({'error': f'Internal server error: {str(e)}'}), 500
 
-@app.route('/api/crm', methods=['POST'])
+@app.route('/api/crm', methods=['GET', 'POST'])
 def handle_crm_webhook():
     """Endpoint for CRM data from AI by Zapier"""
+    # Handle GET requests for retrieving data
+    if request.method == 'GET':
+        search_query = request.args.get('search')
+        limit = int(request.args.get('limit', 100))
+        offset = int(request.args.get('offset', 0))
+        records = get_crm_records(search_query=search_query, limit=limit, offset=offset)
+        return jsonify({
+            'status': 'success',
+            'count': len(records),
+            'data': records
+        }), 200
+    
+    # Handle POST requests for inserting data
     try:
         data = request.get_json()
         
@@ -512,6 +575,15 @@ def handle_crm_webhook():
         logger.error(f"Error processing CRM webhook: {e}")
         return jsonify({'error': f'Internal server error: {str(e)}'}), 500
 
+@app.route('/api/stats', methods=['GET'])
+def get_stats():
+    """Get dashboard statistics"""
+    stats = get_dashboard_stats()
+    return jsonify({
+        'status': 'success',
+        'data': stats
+    }), 200
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
@@ -522,17 +594,204 @@ def health_check():
     else:
         return jsonify({'status': 'unhealthy', 'database': 'disconnected'}), 500
 
-@app.route('/', methods=['GET'])
-def home():
-    """Home endpoint with API documentation"""
+def get_diet_records(date_filter=None, limit=100, offset=0):
+    """Retrieve diet records from database"""
+    connection = get_db_connection()
+    if not connection:
+        return []
+    
+    try:
+        cursor = connection.cursor(dictionary=True)
+        
+        if date_filter:
+            query = """
+            SELECT id, food, food_type, estimated_calories, time_of_day, date, created_at
+            FROM diet
+            WHERE date = %s
+            ORDER BY date DESC, time_of_day DESC
+            LIMIT %s OFFSET %s
+            """
+            cursor.execute(query, (date_filter, limit, offset))
+        else:
+            query = """
+            SELECT id, food, food_type, estimated_calories, time_of_day, date, created_at
+            FROM diet
+            ORDER BY date DESC, time_of_day DESC
+            LIMIT %s OFFSET %s
+            """
+            cursor.execute(query, (limit, offset))
+        
+        records = cursor.fetchall()
+        return records
+        
+    except Error as e:
+        logger.error(f"Error retrieving diet records: {e}")
+        return []
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+def get_tasks_records(status_filter=None, limit=100, offset=0):
+    """Retrieve tasks from database"""
+    connection = get_db_connection()
+    if not connection:
+        return []
+    
+    try:
+        cursor = connection.cursor(dictionary=True)
+        
+        if status_filter:
+            query = """
+            SELECT id, task_name, task_type, responsible_party, status, 
+                   best_start_date, best_due_date, time_interval, notes, dependency, created_at
+            FROM tasks
+            WHERE status = %s
+            ORDER BY created_at DESC
+            LIMIT %s OFFSET %s
+            """
+            cursor.execute(query, (status_filter, limit, offset))
+        else:
+            query = """
+            SELECT id, task_name, task_type, responsible_party, status, 
+                   best_start_date, best_due_date, time_interval, notes, dependency, created_at
+            FROM tasks
+            ORDER BY created_at DESC
+            LIMIT %s OFFSET %s
+            """
+            cursor.execute(query, (limit, offset))
+        
+        records = cursor.fetchall()
+        return records
+        
+    except Error as e:
+        logger.error(f"Error retrieving tasks: {e}")
+        return []
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+def get_crm_records(search_query=None, limit=100, offset=0):
+    """Retrieve CRM contacts from database"""
+    connection = get_db_connection()
+    if not connection:
+        return []
+    
+    try:
+        cursor = connection.cursor(dictionary=True)
+        
+        if search_query:
+            query = """
+            SELECT id, contact_name, company, email, phone, notes, status, created_at, updated_at
+            FROM crm_records
+            WHERE contact_name LIKE %s OR company LIKE %s OR email LIKE %s
+            ORDER BY created_at DESC
+            LIMIT %s OFFSET %s
+            """
+            search_pattern = f"%{search_query}%"
+            cursor.execute(query, (search_pattern, search_pattern, search_pattern, limit, offset))
+        else:
+            query = """
+            SELECT id, contact_name, company, email, phone, notes, status, created_at, updated_at
+            FROM crm_records
+            ORDER BY created_at DESC
+            LIMIT %s OFFSET %s
+            """
+            cursor.execute(query, (limit, offset))
+        
+        records = cursor.fetchall()
+        return records
+        
+    except Error as e:
+        logger.error(f"Error retrieving CRM records: {e}")
+        return []
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+def get_dashboard_stats():
+    """Get statistics for dashboard"""
+    connection = get_db_connection()
+    if not connection:
+        return {}
+    
+    try:
+        cursor = connection.cursor(dictionary=True)
+        
+        # Total calories today
+        cursor.execute("""
+            SELECT COALESCE(SUM(estimated_calories), 0) as total_calories
+            FROM diet
+            WHERE date = CURDATE()
+        """)
+        calories_today = cursor.fetchone()['total_calories']
+        
+        # Pending tasks count
+        cursor.execute("""
+            SELECT COUNT(*) as pending_tasks
+            FROM tasks
+            WHERE status = 'Pending'
+        """)
+        pending_tasks = cursor.fetchone()['pending_tasks']
+        
+        # Total contacts
+        cursor.execute("SELECT COUNT(*) as total_contacts FROM crm_records")
+        total_contacts = cursor.fetchone()['total_contacts']
+        
+        # Total diet entries
+        cursor.execute("SELECT COUNT(*) as total_entries FROM diet")
+        total_entries = cursor.fetchone()['total_entries']
+        
+        # Total tasks
+        cursor.execute("SELECT COUNT(*) as total_tasks FROM tasks")
+        total_tasks = cursor.fetchone()['total_tasks']
+        
+        return {
+            'calories_today': int(calories_today),
+            'pending_tasks': int(pending_tasks),
+            'total_contacts': int(total_contacts),
+            'total_diet_entries': int(total_entries),
+            'total_tasks': int(total_tasks)
+        }
+        
+    except Error as e:
+        logger.error(f"Error retrieving stats: {e}")
+        return {}
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+@app.route('/')
+def dashboard():
+    """Web dashboard homepage"""
+    from flask import render_template
+    stats = get_dashboard_stats()
+    recent_diet = get_diet_records(limit=5)
+    recent_tasks = get_tasks_records(limit=5)
+    recent_contacts = get_crm_records(limit=5)
+    
+    return render_template('dashboard.html', 
+                         stats=stats,
+                         recent_diet=recent_diet,
+                         recent_tasks=recent_tasks,
+                         recent_contacts=recent_contacts)
+
+@app.route('/api')
+def api_home():
+    """API documentation endpoint"""
     return jsonify({
         'message': 'Plaud Webhook Server',
         'version': '1.0',
         'endpoints': {
-            '/api/plaud': 'Main webhook for complete Plaud data (POST)',
-            '/api/diet': 'Diet data webhook (POST)',
-            '/api/tasks': 'Tasks data webhook (POST)',
-            '/api/crm': 'CRM data webhook (POST)',
+            '/': 'Web Dashboard (GET)',
+            '/api': 'API Documentation (GET)',
+            '/api/diet': 'Diet data (GET/POST)',
+            '/api/tasks': 'Tasks data (GET/POST)',
+            '/api/crm': 'CRM data (GET/POST)',
+            '/api/stats': 'Dashboard statistics (GET)',
             '/health': 'Health check (GET)'
         },
         'database': 'MySQL - slack database',

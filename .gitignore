@@ -58,4 +58,3 @@ tmp/
 # Don't commit sensitive credentials
 config.py
 secrets.py
-

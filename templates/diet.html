@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Tracking - Plaud Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .nav a {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav a:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .filters form {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filters input {
+            padding: 10px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .filters button {
+            padding: 10px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filters button:hover {
+            background: #764ba2;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-meal {
+            background: #fd79a8;
+            color: #d63031;
+        }
+
+        .badge-snack {
+            background: #fdcb6e;
+            color: #e17055;
+        }
+
+        .badge-drink {
+            background: #74b9ff;
+            color: #0984e3;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍽️ Diet Tracking</h1>
+            <p>Track your meals, snacks, and calories</p>
+            <div class="nav">
+                <a href="/">Dashboard</a>
+                <a href="/diet">Diet Tracking</a>
+                <a href="/tasks">Tasks</a>
+                <a href="/crm">Contacts</a>
+            </div>
+        </div>
+
+        <div class="filters">
+            <form method="get">
+                <label>Filter by Date:</label>
+                <input type="date" name="date" value="{{ date_filter or '' }}">
+                <button type="submit">Filter</button>
+                <a href="/diet" style="text-decoration: none; color: #667eea;">Clear</a>
+            </form>
+        </div>
+
+        <div class="section">
+            <h2>Diet Entries</h2>
+            {% if records %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Food</th>
+                        <th>Type</th>
+                        <th>Calories</th>
+                        <th>Time</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in records %}
+                    <tr>
+                        <td><strong>{{ item.food }}</strong></td>
+                        <td><span class="badge badge-{{ item.food_type.lower() }}">{{ item.food_type }}</span></td>
+                        <td>{{ item.estimated_calories }} cal</td>
+                        <td>{{ item.time_of_day }}</td>
+                        <td>{{ item.date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p style="margin-top: 20px; color: #666;">Total entries: {{ records|length }}</p>
+            {% else %}
+            <div class="empty-state">
+                <h3>No diet entries found</h3>
+                <p>Start tracking your meals by recording transcripts in Plaud!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
+
+
