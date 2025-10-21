@@ -146,6 +146,84 @@
             padding: 60px;
             color: #999;
         }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .nav {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .nav a {
+                padding: 8px 15px;
+                font-size: 0.9em;
+                flex: 1 1 calc(50% - 10px);
+                text-align: center;
+            }
+
+            .filters {
+                padding: 15px;
+            }
+
+            .filters form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filters select,
+            .filters button {
+                width: 100%;
+            }
+
+            .section {
+                padding: 15px;
+                overflow-x: auto;
+            }
+
+            .section h2 {
+                font-size: 1.2em;
+            }
+
+            table {
+                font-size: 0.85em;
+                min-width: 700px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+
+            .badge {
+                font-size: 0.75em;
+                padding: 4px 8px;
+            }
+
+            .empty-state {
+                padding: 40px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav a {
+                flex: 1 1 100%;
+            }
+
+            table {
+                font-size: 0.75em;
+            }
+        }
     </style>
 </head>
 <body>

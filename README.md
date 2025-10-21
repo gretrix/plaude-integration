@@ -24,6 +24,8 @@ Plaud App → Zapier → AI Extraction → Python Server → MySQL
 - ✅ Bulk insert with duplicate handling
 - ✅ Error handling and logging
 - ✅ MySQL connection with fallback mode
+- ✅ **Mobile-responsive web dashboard** 📱
+- ✅ **Optimized for phones and tablets**
 
 ## 📋 Prerequisites
 
@@ -196,3 +198,18 @@ For issues or questions:
 **Status**: ✅ Production Ready
 
 Last Updated: October 2025
+
+
+# Check if Flask is running
+ps aux | grep app.py
+
+# View Flask logs
+tail -f ~/plaude-integration/flask.log
+
+# Stop Flask
+pkill -f app.py
+
+# Start Flask again
+cd ~/plaude-integration
+source venv/bin/activate
+nohup python3 app.py > flask.log 2>&1 &
