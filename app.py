@@ -518,6 +518,10 @@ def handle_tasks_webhook():
             }), 200
         else:
             return jsonify({'error': 'Failed to process tasks data', 'data': tasks_records}), 500
+    
+    except Exception as e:
+        logger.error(f"Error processing tasks webhook: {e}")
+        return jsonify({'error': f'Internal server error: {str(e)}'}), 500
 
 @app.route('/api/tasks/<int:task_id>/status', methods=['PATCH'])
 def update_task_status(task_id):
