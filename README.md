@@ -213,3 +213,87 @@ pkill -f app.py
 cd ~/plaude-integration
 source venv/bin/activate
 nohup python3 app.py > flask.log 2>&1 &
+
+
+1. Stop the old Flask server:
+
+pkill -f app.py
+
+2. Verify it's stopped:
+
+ps aux | grep app.py
+
+
+3. Pull the latest code (you already did this, but let's be sure):
+
+cd ~/plaude-integration
+git pull origin main
+
+4. Check what branch you're on:
+
+git branch
+
+
+5. Check if you have the latest changes:
+
+
+git log --oneline -5
+
+6. Activate virtual environment:
+
+source venv/bin/activate
+
+7. Start Flask with screen (better than nohup):
+
+screen -S flask
+python app.py
+
+8. Detach from screen:
+Press Ctrl+A then D
+✅ Verify It's Running:
+
+ps aux | grep app.py
+
+
+🔄 Future Update Workflow
+Every Time You Push New Code to GitHub:
+Run this simple 5-command sequence on your EC2:
+
+# 1. Stop the old server
+pkill -f app.py
+
+# 2. Go to project folder
+cd ~/plaude-integration
+
+# 3. Pull latest code from GitHub
+git pull origin main
+
+# 4. Activate virtual environment
+source venv/bin/activate
+
+# 5. Start server in background
+screen -dmS flask python app.py
+
+
+
+# Check if Flask is running
+ps aux | grep app.py
+
+# View Flask logs (if you used screen)
+screen -r flask
+# Press Ctrl+A then D to exit without stopping
+
+# Stop Flask manually
+pkill -f app.py
+
+# View recent commits
+cd ~/plaude-integration
+git log --oneline -5
+
+# Check current branch
+git branch
+
+
+
+
+

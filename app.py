@@ -518,10 +518,62 @@ def handle_tasks_webhook():
             }), 200
         else:
             return jsonify({'error': 'Failed to process tasks data', 'data': tasks_records}), 500
+
+@app.route('/api/tasks/<int:task_id>/status', methods=['PATCH'])
+def update_task_status(task_id):
+    """Update task status (for checkbox toggle)"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'status' not in data:
+            return jsonify({'error': 'Status is required'}), 400
+        
+        new_status = data['status']
+        
+        # Validate status
+        valid_statuses = ['Pending', 'In Progress', 'Completed', 'Cancelled']
+        if new_status not in valid_statuses:
+            return jsonify({'error': f'Invalid status. Must be one of: {", ".join(valid_statuses)}'}), 400
+        
+        connection = get_db_connection()
+        if not connection:
+            return jsonify({'error': 'Database connection failed'}), 500
+        
+        try:
+            cursor = connection.cursor()
             
+            # Update task status
+            query = """
+            UPDATE tasks 
+            SET status = %s, updated_at = CURRENT_TIMESTAMP
+            WHERE id = %s
+            """
+            cursor.execute(query, (new_status, task_id))
+            connection.commit()
+            
+            if cursor.rowcount == 0:
+                return jsonify({'error': 'Task not found'}), 404
+            
+            logger.info(f"Updated task {task_id} status to {new_status}")
+            
+            return jsonify({
+                'status': 'success',
+                'message': f'Task status updated to {new_status}',
+                'task_id': task_id,
+                'new_status': new_status
+            }), 200
+            
+        except Error as e:
+            logger.error(f"Error updating task status: {e}")
+            return jsonify({'error': 'Failed to update task status'}), 500
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+    
     except Exception as e:
-        logger.error(f"Error processing tasks webhook: {e}")
-        return jsonify({'error': f'Internal server error: {str(e)}'}), 500
+        logger.error(f"Error in update_task_status: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/api/crm', methods=['GET', 'POST'])
 def handle_crm_webhook():

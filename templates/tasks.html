@@ -64,10 +64,23 @@
             margin-bottom: 20px;
         }
 
-        .filters form {
-            display: flex;
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
-            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #666;
         }
 
         .filters select {
@@ -77,6 +90,11 @@
             font-size: 1em;
         }
 
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+        }
+
         .filters button {
             padding: 10px 25px;
             background: #667eea;
@@ -84,6 +102,20 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filters button:hover {
+            background: #764ba2;
+        }
+
+        .btn-clear {
+            background: #dfe6e9 !important;
+            color: #636e72 !important;
+        }
+
+        .btn-clear:hover {
+            background: #b2bec3 !important;
         }
 
         .section {
@@ -108,10 +140,50 @@
             background: #f8f9fa;
             font-weight: 600;
             color: #667eea;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        th:hover {
+            background: #e9ecef;
+        }
+
+        th.sortable::after {
+            content: ' ⇅';
+            opacity: 0.3;
+            font-size: 0.8em;
+        }
+
+        th.sort-asc::after {
+            content: ' ▲';
+            opacity: 1;
+        }
+
+        th.sort-desc::after {
+            content: ' ▼';
+            opacity: 1;
         }
 
         tr:hover {
             background: #f8f9fa;
+        }
+
+        .checkbox-cell {
+            width: 50px;
+            text-align: center;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .completed-row {
+            opacity: 0.6;
+            text-decoration: line-through;
         }
 
         .badge {
@@ -240,37 +312,71 @@
         </div>
 
         <div class="filters">
-            <form method="get">
-                <label>Filter by Status:</label>
-                <select name="status">
-                    <option value="">All Tasks</option>
-                    <option value="Pending" {{ 'selected' if status_filter == 'Pending' }}>Pending</option>
-                    <option value="In Progress" {{ 'selected' if status_filter == 'In Progress' }}>In Progress</option>
-                    <option value="Completed" {{ 'selected' if status_filter == 'Completed' }}>Completed</option>
-                    <option value="Cancelled" {{ 'selected' if status_filter == 'Cancelled' }}>Cancelled</option>
-                </select>
-                <button type="submit">Filter</button>
-                <a href="/tasks" style="text-decoration: none; color: #667eea;">Clear</a>
-            </form>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Status:</label>
+                    <select id="statusFilter">
+                        <option value="">All Tasks</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Task Type:</label>
+                    <select id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="Meeting">Meeting</option>
+                        <option value="Call">Call</option>
+                        <option value="Email">Email</option>
+                        <option value="Follow-up">Follow-up</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Responsible Party:</label>
+                    <select id="responsibleFilter">
+                        <option value="">All People</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button onclick="applyFilters()">Apply Filters</button>
+                <button class="btn-clear" onclick="clearFilters()">Clear All</button>
+            </div>
         </div>
 
         <div class="section">
             <h2>Your Tasks</h2>
             {% if tasks %}
-            <table>
+            <table id="tasksTable">
                 <thead>
                     <tr>
-                        <th>Task</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                        <th>Responsible</th>
-                        <th>Due Date</th>
+                        <th class="checkbox-cell">✓</th>
+                        <th class="sortable" data-column="task_name">Task</th>
+                        <th class="sortable" data-column="task_type">Type</th>
+                        <th class="sortable" data-column="status">Status</th>
+                        <th class="sortable" data-column="responsible_party">Responsible</th>
+                        <th class="sortable" data-column="best_due_date">Due Date</th>
                         <th>Notes</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tasksBody">
                     {% for task in tasks %}
-                    <tr>
+                    <tr class="task-row {{ 'completed-row' if task.status == 'Completed' }}" 
+                        data-id="{{ task.id }}"
+                        data-status="{{ task.status }}"
+                        data-type="{{ task.task_type }}"
+                        data-responsible="{{ task.responsible_party or '' }}"
+                        data-task-name="{{ task.task_name }}"
+                        data-due-date="{{ task.best_due_date or '' }}">
+                        <td class="checkbox-cell">
+                            <input type="checkbox" 
+                                   class="task-checkbox" 
+                                   data-task-id="{{ task.id }}"
+                                   {{ 'checked' if task.status == 'Completed' }}>
+                        </td>
                         <td><strong>{{ task.task_name }}</strong></td>
                         <td>{{ task.task_type }}</td>
                         <td><span class="badge badge-{{ task.status.lower().replace(' ', '-') }}">{{ task.status }}</span></td>
@@ -281,7 +387,7 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <p style="margin-top: 20px; color: #666;">Total tasks: {{ tasks|length }}</p>
+            <p style="margin-top: 20px; color: #666;">Total tasks: <span id="taskCount">{{ tasks|length }}</span></p>
             {% else %}
             <div class="empty-state">
                 <h3>No tasks found</h3>
@@ -290,6 +396,227 @@
             {% endif %}
         </div>
     </div>
+
+    <script>
+        // Store all tasks data for filtering and sorting
+        let allTasks = [];
+        let currentSort = { column: null, direction: 'asc' };
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Store all tasks
+            const rows = document.querySelectorAll('.task-row');
+            rows.forEach(row => {
+                allTasks.push({
+                    element: row,
+                    id: row.dataset.id,
+                    status: row.dataset.status,
+                    type: row.dataset.type,
+                    responsible: row.dataset.responsible,
+                    taskName: row.dataset.taskName,
+                    dueDate: row.dataset.dueDate
+                });
+            });
+
+            // Populate responsible party filter
+            populateResponsibleFilter();
+
+            // Load saved filters from localStorage
+            loadSavedFilters();
+
+            // Apply saved filters
+            applyFilters();
+
+            // Add checkbox event listeners
+            document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', handleCheckboxChange);
+            });
+
+            // Add sorting event listeners
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', function() {
+                    sortTable(this.dataset.column);
+                });
+            });
+        });
+
+        // Populate responsible party dropdown with unique values
+        function populateResponsibleFilter() {
+            const responsibleSet = new Set();
+            allTasks.forEach(task => {
+                if (task.responsible) {
+                    responsibleSet.add(task.responsible);
+                }
+            });
+
+            const select = document.getElementById('responsibleFilter');
+            responsibleSet.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person;
+                option.textContent = person;
+                select.appendChild(option);
+            });
+        }
+
+        // Load saved filters from localStorage
+        function loadSavedFilters() {
+            const savedFilters = localStorage.getItem('taskFilters');
+            if (savedFilters) {
+                const filters = JSON.parse(savedFilters);
+                document.getElementById('statusFilter').value = filters.status || '';
+                document.getElementById('typeFilter').value = filters.type || '';
+                document.getElementById('responsibleFilter').value = filters.responsible || '';
+            }
+        }
+
+        // Save filters to localStorage
+        function saveFilters() {
+            const filters = {
+                status: document.getElementById('statusFilter').value,
+                type: document.getElementById('typeFilter').value,
+                responsible: document.getElementById('responsibleFilter').value
+            };
+            localStorage.setItem('taskFilters', JSON.stringify(filters));
+        }
+
+        // Apply filters
+        function applyFilters() {
+            saveFilters();
+
+            const statusFilter = document.getElementById('statusFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const responsibleFilter = document.getElementById('responsibleFilter').value;
+
+            let visibleCount = 0;
+
+            allTasks.forEach(task => {
+                let show = true;
+
+                if (statusFilter && task.status !== statusFilter) {
+                    show = false;
+                }
+
+                if (typeFilter && task.type !== typeFilter) {
+                    show = false;
+                }
+
+                if (responsibleFilter && task.responsible !== responsibleFilter) {
+                    show = false;
+                }
+
+                task.element.style.display = show ? '' : 'none';
+                if (show) visibleCount++;
+            });
+
+            document.getElementById('taskCount').textContent = visibleCount;
+        }
+
+        // Clear all filters
+        function clearFilters() {
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('responsibleFilter').value = '';
+            localStorage.removeItem('taskFilters');
+            applyFilters();
+        }
+
+        // Handle checkbox change (mark task complete/incomplete)
+        function handleCheckboxChange(event) {
+            const checkbox = event.target;
+            const taskId = checkbox.dataset.taskId;
+            const isCompleted = checkbox.checked;
+            const row = checkbox.closest('tr');
+
+            // Update UI immediately
+            if (isCompleted) {
+                row.classList.add('completed-row');
+                row.dataset.status = 'Completed';
+                row.querySelector('.badge').className = 'badge badge-completed';
+                row.querySelector('.badge').textContent = 'Completed';
+            } else {
+                row.classList.remove('completed-row');
+                row.dataset.status = 'Pending';
+                row.querySelector('.badge').className = 'badge badge-pending';
+                row.querySelector('.badge').textContent = 'Pending';
+            }
+
+            // Update task in allTasks array
+            const task = allTasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = isCompleted ? 'Completed' : 'Pending';
+            }
+
+            // Send update to server
+            updateTaskStatus(taskId, isCompleted ? 'Completed' : 'Pending');
+        }
+
+        // Update task status on server
+        function updateTaskStatus(taskId, status) {
+            fetch(`/api/tasks/${taskId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status !== 'success') {
+                    console.error('Failed to update task status');
+                    // Optionally revert the UI change
+                }
+            })
+            .catch(error => {
+                console.error('Error updating task:', error);
+                // Optionally revert the UI change
+            });
+        }
+
+        // Sort table by column
+        function sortTable(column) {
+            const tbody = document.getElementById('tasksBody');
+            
+            // Toggle sort direction
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+
+            // Update sort indicators
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            const currentTh = document.querySelector(`th[data-column="${column}"]`);
+            currentTh.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
+
+            // Sort tasks
+            const sortedTasks = [...allTasks].sort((a, b) => {
+                let aVal = a.element.dataset[column.replace(/_/g, '-')] || '';
+                let bVal = b.element.dataset[column.replace(/_/g, '-')] || '';
+
+                // Handle date sorting
+                if (column === 'best_due_date') {
+                    aVal = aVal ? new Date(aVal) : new Date('9999-12-31');
+                    bVal = bVal ? new Date(bVal) : new Date('9999-12-31');
+                    return currentSort.direction === 'asc' ? aVal - bVal : bVal - aVal;
+                }
+
+                // String sorting
+                if (currentSort.direction === 'asc') {
+                    return aVal.localeCompare(bVal);
+                } else {
+                    return bVal.localeCompare(aVal);
+                }
+            });
+
+            // Reorder DOM elements
+            sortedTasks.forEach(task => {
+                tbody.appendChild(task.element);
+            });
+        }
+    </script>
 </body>
 </html>
 
