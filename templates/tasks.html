@@ -5,6 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tasks - Plaud Dashboard</title>
     <style>
+        :root {
+            /* Primary Colors */
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --primary-subtle: #EEF2FF;
+            --accent: #8B5CF6;
+            
+            /* Semantic Colors */
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --error: #EF4444;
+            --error-light: #FEE2E2;
+            --info: #3B82F6;
+            --info-light: #DBEAFE;
+            
+            /* Grays */
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-400: #9CA3AF;
+            --gray-500: #6B7280;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            
+            /* Spacing */
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            
+            /* Border Radius */
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --radius-full: 9999px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-primary: 0 10px 25px -5px rgba(99, 102, 241, 0.3);
+            
+            /* Typography */
+            --text-sm: 0.875rem;
+            --text-base: 1rem;
+            --text-lg: 1.125rem;
+            --text-xl: 1.25rem;
+            --text-2xl: 1.5rem;
+            --text-3xl: 1.875rem;
+            
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            --gradient-card: linear-gradient(145deg, #FFFFFF 0%, #F9FAFB 100%);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,141 +73,181 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--gray-50);
             min-height: 100vh;
-            padding: 20px;
+            padding: var(--space-5);
+            color: var(--gray-900);
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
         .header {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            background: var(--gradient-card);
+            padding: var(--space-8);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-8);
+            border: 1px solid var(--gray-200);
         }
 
         h1 {
-            color: #333;
-            margin-bottom: 10px;
+            color: var(--gray-900);
+            margin-bottom: var(--space-2);
+            font-size: var(--text-3xl);
+            font-weight: 600;
+        }
+
+        .header p {
+            color: var(--gray-600);
+            font-size: var(--text-base);
         }
 
         .nav {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            gap: var(--space-2);
+            margin-top: var(--space-6);
+            flex-wrap: wrap;
         }
 
         .nav a {
-            padding: 10px 20px;
-            background: #667eea;
+            padding: var(--space-3) var(--space-5);
+            background: var(--gradient-primary);
             color: white;
             text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s;
+            border-radius: var(--radius-md);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            font-size: var(--text-sm);
+            box-shadow: var(--shadow-sm);
         }
 
         .nav a:hover {
-            background: #764ba2;
-            transform: translateY(-2px);
+            box-shadow: var(--shadow-primary);
+            transform: translateY(-1px);
         }
 
         .filters {
             background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-6);
+            border: 1px solid var(--gray-200);
         }
 
         .filters-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
         }
 
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: var(--space-2);
         }
 
         .filter-group label {
-            font-size: 0.9em;
+            font-size: var(--text-sm);
             font-weight: 600;
-            color: #666;
+            color: var(--gray-700);
         }
 
         .filters select {
-            padding: 10px;
-            border: 2px solid #eee;
-            border-radius: 8px;
-            font-size: 1em;
+            padding: var(--space-3) var(--space-4);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            font-size: var(--text-base);
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .filters select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
         .filter-actions {
             display: flex;
-            gap: 10px;
+            gap: var(--space-3);
         }
 
         .filters button {
-            padding: 10px 25px;
-            background: #667eea;
+            padding: var(--space-3) var(--space-6);
+            background: var(--gradient-primary);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
         }
 
         .filters button:hover {
-            background: #764ba2;
+            box-shadow: var(--shadow-primary);
+            transform: translateY(-1px);
         }
 
         .btn-clear {
-            background: #dfe6e9 !important;
-            color: #636e72 !important;
+            background: var(--gray-200) !important;
+            color: var(--gray-700) !important;
         }
 
         .btn-clear:hover {
-            background: #b2bec3 !important;
+            background: var(--gray-300) !important;
+            box-shadow: var(--shadow-sm) !important;
         }
 
         .section {
             background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+        }
+
+        .section h2 {
+            color: var(--gray-900);
+            margin-bottom: var(--space-6);
+            font-size: var(--text-2xl);
+            font-weight: 600;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
         }
 
         th, td {
-            padding: 15px;
+            padding: var(--space-4);
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--gray-100);
         }
 
         th {
-            background: #f8f9fa;
+            background: var(--gray-50);
             font-weight: 600;
-            color: #667eea;
+            color: var(--gray-700);
+            font-size: var(--text-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--gray-200);
             cursor: pointer;
             user-select: none;
             position: relative;
+            transition: background 0.2s ease;
         }
 
         th:hover {
-            background: #e9ecef;
+            background: var(--gray-100);
         }
 
         th.sortable::after {
@@ -158,15 +259,25 @@
         th.sort-asc::after {
             content: ' ▲';
             opacity: 1;
+            color: var(--primary);
         }
 
         th.sort-desc::after {
             content: ' ▼';
             opacity: 1;
+            color: var(--primary);
         }
 
-        tr:hover {
-            background: #f8f9fa;
+        td {
+            color: var(--gray-600);
+        }
+
+        tr:hover td {
+            background: var(--gray-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
         }
 
         .checkbox-cell {
@@ -175,10 +286,10 @@
         }
 
         .task-checkbox {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             cursor: pointer;
-            accent-color: #667eea;
+            accent-color: var(--primary);
         }
 
         .completed-row {
@@ -187,103 +298,148 @@
         }
 
         .badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: var(--text-sm);
+            font-weight: 500;
+            line-height: 1;
         }
 
         .badge-pending {
-            background: #ffeaa7;
-            color: #d63031;
+            background: var(--warning-light);
+            color: var(--warning);
         }
 
         .badge-in-progress {
-            background: #74b9ff;
-            color: #0984e3;
+            background: var(--info-light);
+            color: var(--info);
         }
 
         .badge-completed {
-            background: #55efc4;
-            color: #00b894;
+            background: var(--success-light);
+            color: var(--success);
         }
 
         .badge-cancelled {
-            background: #dfe6e9;
-            color: #636e72;
+            background: var(--gray-200);
+            color: var(--gray-600);
+        }
+
+        .priority-input {
+            width: 60px;
+            padding: var(--space-2) var(--space-3);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: var(--text-sm);
+            text-align: center;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .priority-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .priority-input:hover {
+            border-color: var(--primary-light);
+        }
+
+        /* Remove spinner arrows in Chrome, Safari, Edge */
+        .priority-input::-webkit-outer-spin-button,
+        .priority-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Remove spinner arrows in Firefox */
+        .priority-input[type=number] {
+            -moz-appearance: textfield;
         }
 
         .empty-state {
             text-align: center;
-            padding: 60px;
-            color: #999;
+            padding: var(--space-8);
+            color: var(--gray-500);
+        }
+
+        .empty-state h3 {
+            color: var(--gray-700);
+            margin-bottom: var(--space-2);
+            font-size: var(--text-lg);
+        }
+
+        .empty-state p {
+            color: var(--gray-500);
+            font-size: var(--text-sm);
         }
 
         /* Mobile Responsive Styles */
         @media (max-width: 768px) {
             body {
-                padding: 10px;
+                padding: var(--space-3);
             }
 
             .header {
-                padding: 20px;
+                padding: var(--space-5);
             }
 
             h1 {
-                font-size: 1.5em;
-            }
-
-            .nav {
-                flex-wrap: wrap;
-                gap: 10px;
+                font-size: var(--text-2xl);
             }
 
             .nav a {
-                padding: 8px 15px;
-                font-size: 0.9em;
-                flex: 1 1 calc(50% - 10px);
+                padding: var(--space-2) var(--space-4);
+                font-size: var(--text-sm);
+                flex: 1 1 calc(50% - var(--space-2));
                 text-align: center;
             }
 
             .filters {
-                padding: 15px;
+                padding: var(--space-4);
             }
 
-            .filters form {
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-actions {
                 flex-direction: column;
-                align-items: stretch;
             }
 
-            .filters select,
             .filters button {
                 width: 100%;
             }
 
             .section {
-                padding: 15px;
+                padding: var(--space-4);
                 overflow-x: auto;
             }
 
             .section h2 {
-                font-size: 1.2em;
+                font-size: var(--text-xl);
             }
 
             table {
-                font-size: 0.85em;
+                font-size: var(--text-sm);
                 min-width: 700px;
             }
 
             th, td {
-                padding: 10px;
+                padding: var(--space-3);
             }
 
             .badge {
-                font-size: 0.75em;
-                padding: 4px 8px;
+                font-size: 0.75rem;
+                padding: 0.2rem 0.6rem;
             }
 
             .empty-state {
-                padding: 40px 20px;
+                padding: var(--space-6);
             }
         }
 
@@ -293,7 +449,7 @@
             }
 
             table {
-                font-size: 0.75em;
+                font-size: 0.75rem;
             }
         }
     </style>
@@ -354,6 +510,7 @@
                 <thead>
                     <tr>
                         <th class="checkbox-cell">✓</th>
+                        <th class="sortable" data-column="priority">Priority</th>
                         <th class="sortable" data-column="task_name">Task</th>
                         <th class="sortable" data-column="task_type">Type</th>
                         <th class="sortable" data-column="status">Status</th>
@@ -370,12 +527,22 @@
                         data-type="{{ task.task_type }}"
                         data-responsible="{{ task.responsible_party or '' }}"
                         data-task-name="{{ task.task_name }}"
+                        data-priority="{{ task.priority or 99 }}"
                         data-due-date="{{ task.best_due_date or '' }}">
                         <td class="checkbox-cell">
                             <input type="checkbox" 
                                    class="task-checkbox" 
                                    data-task-id="{{ task.id }}"
                                    {{ 'checked' if task.status == 'Completed' }}>
+                        </td>
+                        <td>
+                            <input type="number" 
+                                   class="priority-input" 
+                                   value="{{ task.priority or '' }}"
+                                   min="1"
+                                   max="99"
+                                   data-task-id="{{ task.id }}"
+                                   placeholder="Set">
                         </td>
                         <td><strong>{{ task.task_name }}</strong></td>
                         <td>{{ task.task_type }}</td>
@@ -414,6 +581,7 @@
                     type: row.dataset.type,
                     responsible: row.dataset.responsible,
                     taskName: row.dataset.taskName,
+                    priority: row.dataset.priority,
                     dueDate: row.dataset.dueDate
                 });
             });
@@ -430,6 +598,12 @@
             // Add checkbox event listeners
             document.querySelectorAll('.task-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', handleCheckboxChange);
+            });
+
+            // Add priority input event listeners
+            document.querySelectorAll('.priority-input').forEach(input => {
+                input.addEventListener('change', handlePriorityChange);
+                input.addEventListener('blur', handlePriorityChange);
             });
 
             // Add sorting event listeners
@@ -520,6 +694,55 @@
             applyFilters();
         }
 
+        // Handle priority change
+        function handlePriorityChange(event) {
+            const input = event.target;
+            const taskId = input.dataset.taskId;
+            const newPriority = parseInt(input.value) || null;
+            const row = input.closest('tr');
+
+            // Validate priority
+            if (newPriority !== null && (newPriority < 1 || newPriority > 99)) {
+                alert('Priority must be between 1 and 99');
+                input.value = row.dataset.priority || '';
+                return;
+            }
+
+            // Update row data attribute
+            row.dataset.priority = newPriority || 99;
+
+            // Update task in allTasks array
+            const task = allTasks.find(t => t.id === taskId);
+            if (task) {
+                task.priority = newPriority || 99;
+            }
+
+            // Send update to server
+            updateTaskPriority(taskId, newPriority);
+        }
+
+        // Update task priority on server
+        function updateTaskPriority(taskId, priority) {
+            fetch(`/api/tasks/${taskId}/priority`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ priority: priority })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log(`Priority updated to ${priority}`);
+                } else {
+                    console.error('Failed to update priority');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating priority:', error);
+            });
+        }
+
         // Handle checkbox change (mark task complete/incomplete)
         function handleCheckboxChange(event) {
             const checkbox = event.target;
@@ -595,6 +818,13 @@
             const sortedTasks = [...allTasks].sort((a, b) => {
                 let aVal = a.element.dataset[column.replace(/_/g, '-')] || '';
                 let bVal = b.element.dataset[column.replace(/_/g, '-')] || '';
+
+                // Handle priority sorting (numeric)
+                if (column === 'priority') {
+                    aVal = parseInt(aVal) || 99;
+                    bVal = parseInt(bVal) || 99;
+                    return currentSort.direction === 'asc' ? aVal - bVal : bVal - aVal;
+                }
 
                 // Handle date sorting
                 if (column === 'best_due_date') {
